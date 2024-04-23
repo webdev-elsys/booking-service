@@ -1,6 +1,6 @@
 package elsys.bookingapi.config.kafka;
 
-import elsys.bookingapi.dto.NotificationData;
+import elsys.bookingapi.entity.Reservation;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +20,7 @@ public class KafkaProducerConfig {
     private String bootstrapServers;
 
     @Bean
-    public ProducerFactory<String, NotificationData> notificationDataProducerFactory() {
+    public ProducerFactory<String, Reservation> notificationDataProducerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -29,7 +29,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, NotificationData> notificationDataKafkaTemplate() {
+    public KafkaTemplate<String, Reservation> notificationDataKafkaTemplate() {
         return new KafkaTemplate<>(notificationDataProducerFactory());
     }
 }
