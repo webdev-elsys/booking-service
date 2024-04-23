@@ -1,14 +1,14 @@
 package elsys.bookingapi.service.Impl;
 
+import elsys.bookingapi.config.kafka.KafkaTopics;
 import elsys.bookingapi.dto.ClientReservationRequest;
-import elsys.bookingapi.dto.ProcessPendingReservation;
+import elsys.bookingapi.dto.UpdateReservationStatus;
 import elsys.bookingapi.entity.Reservation;
 import elsys.bookingapi.entity.ReservationStatus;
 import elsys.bookingapi.repository.ReservationRepository;
 import elsys.bookingapi.service.ReservationService;
 import elsys.bookingapi.mapper.ReservationMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +18,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ReservationServiceImpl implements ReservationService {
-    @Value("${kafka.reservation-request-topic}")
-    private String reservationRequestTopic;
-
-    @Value("${kafka.reservation-process-topic}")
-    private String reservationProcessTopic;
-
     private final ReservationRepository reservationRepository;
     private final PropertyApiServiceImpl propertyApiService;
     private final KafkaTemplate<String, Reservation> notificationDataKafkaTemplate;
@@ -54,7 +48,8 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setTotalPrice(roomPrice * nights);
 
         reservationRepository.save(reservation);
-        notificationDataKafkaTemplate.send(reservationRequestTopic, reservation);
+
+        notificationDataKafkaTemplate.send(KafkaTopics.PENDING, reservation);
     }
 
     @Override
@@ -63,22 +58,36 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public void processReservation(String reservationUuid, ProcessPendingReservation processData) {
+    public void updateReservationStatus(String reservationUuid, UpdateReservationStatus updateData) {
         Reservation reservation = reservationRepository.findById(reservationUuid).orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
 
-        if (reservation.getStatus() != ReservationStatus.PENDING) {
-            throw new IllegalArgumentException("Reservation is not pending");
+        if (updateData.status() == ReservationStatus.PENDING) {
+            throw new IllegalArgumentException("Invalid status");
         }
 
-        if (processData.isApproved()) {
-            reservation.setStatus(ReservationStatus.CONFIRMED);
-            reservationRepository.save(reservation);
-        } else {
-            reservation.setStatus(ReservationStatus.REJECTED);
-            reservationRepository.delete(reservation);
-        }
+        reservation.setStatus(updateData.status());
 
-        notificationDataKafkaTemplate.send(reservationProcessTopic, reservation);
+        switch (updateData.status()) {
+            case REJECTED -> {
+                notificationDataKafkaTemplate.send(KafkaTopics.REJECTED, reservation);
+                reservationRepository.delete(reservation);
+            }
+            case CANCELLED -> {
+                notificationDataKafkaTemplate.send(KafkaTopics.CANCELLED, reservation);
+                reservationRepository.delete(reservation);
+            }
+            case COMPLETED -> {
+                notificationDataKafkaTemplate.send(KafkaTopics.COMPLETED, reservation);
+                reservationRepository.delete(reservation);
+            }
+            case CONFIRMED -> {
+                notificationDataKafkaTemplate.send(KafkaTopics.CONFIRMED, reservation);
+                reservationRepository.save(reservation);
+            }
+            case EXECUTING -> {
+                reservationRepository.save(reservation);
+            }
+        }
     }
 
     @Override

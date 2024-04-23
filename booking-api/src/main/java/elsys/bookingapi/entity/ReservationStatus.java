@@ -3,5 +3,8 @@ package elsys.bookingapi.entity;
 public enum ReservationStatus {
     PENDING,
     CONFIRMED,
-    REJECTED
+    REJECTED,
+    CANCELLED,
+    COMPLETED,
+    EXECUTING
 }

@@ -1,7 +1,7 @@
 package elsys.bookingapi.service;
 
 import elsys.bookingapi.dto.ClientReservationRequest;
-import elsys.bookingapi.dto.ProcessPendingReservation;
+import elsys.bookingapi.dto.UpdateReservationStatus;
 import elsys.bookingapi.entity.Reservation;
 
 import java.time.LocalDate;
@@ -11,6 +11,6 @@ public interface ReservationService {
     public List<String> getBookedRooms(String propertyUuid, LocalDate checkInDate, LocalDate checkOutDate);
     public void requestReservation(ClientReservationRequest reservationRequest);
     public List<Reservation> getPendingReservationsByProperty(String propertyUuid);
-    public void processReservation(String reservationUuid, ProcessPendingReservation processData);
+    public void updateReservationStatus(String reservationUuid, UpdateReservationStatus updateData);
     public List<Reservation> getReservations();
 }

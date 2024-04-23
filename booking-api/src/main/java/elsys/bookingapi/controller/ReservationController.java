@@ -1,7 +1,7 @@
 package elsys.bookingapi.controller;
 
 import elsys.bookingapi.dto.ClientReservationRequest;
-import elsys.bookingapi.dto.ProcessPendingReservation;
+import elsys.bookingapi.dto.UpdateReservationStatus;
 import elsys.bookingapi.entity.Reservation;
 import elsys.bookingapi.service.ReservationService;
 import jakarta.validation.constraints.Future;
@@ -39,12 +39,12 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getPendingReservationsByProperty(propertyUuid));
     }
 
-    @PatchMapping("/{reservationUuid}/process")
-    public ResponseEntity<Void> processReservation(
+    @PatchMapping("/{reservationUuid}/status")
+    public ResponseEntity<Void> updateReservationStatus(
         @PathVariable @UUID String reservationUuid,
-        @RequestBody ProcessPendingReservation processData
+        @RequestBody UpdateReservationStatus updateData
     ) {
-        reservationService.processReservation(reservationUuid, processData);
+        reservationService.updateReservationStatus(reservationUuid, updateData);
         return ResponseEntity.ok().build();
     }
 
