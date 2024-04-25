@@ -89,9 +89,4 @@ public class ReservationServiceImpl implements ReservationService {
             }
         }
     }
-
-    @Override
-    public List<Reservation> getReservations() {
-        return reservationRepository.findAll();
-    }
 }

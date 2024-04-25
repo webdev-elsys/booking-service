@@ -28,7 +28,7 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getBookedRooms(propertyUuid, checkInDate, checkOutDate));
     }
 
-    @PostMapping("/")
+    @PostMapping()
     public ResponseEntity<Void> requestReservation(@RequestBody ClientReservationRequest reservationRequest) {
         reservationService.requestReservation(reservationRequest);
         return ResponseEntity.ok().build();
@@ -46,10 +46,5 @@ public class ReservationController {
     ) {
         reservationService.updateReservationStatus(reservationUuid, updateData);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/")
-    public ResponseEntity<List<Reservation>> getReservations() {
-        return ResponseEntity.ok(reservationService.getReservations());
     }
 }

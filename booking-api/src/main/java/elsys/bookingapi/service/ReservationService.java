@@ -12,5 +12,4 @@ public interface ReservationService {
     public void requestReservation(ClientReservationRequest reservationRequest);
     public List<Reservation> getPendingReservationsByProperty(String propertyUuid);
     public void updateReservationStatus(String reservationUuid, UpdateReservationStatus updateData);
-    public List<Reservation> getReservations();
 }
