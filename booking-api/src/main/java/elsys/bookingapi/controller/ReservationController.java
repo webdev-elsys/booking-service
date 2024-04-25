@@ -1,6 +1,7 @@
 package elsys.bookingapi.controller;
 
 import elsys.bookingapi.dto.ClientReservationRequest;
+import elsys.bookingapi.dto.UpdateReservationStatus;
 import elsys.bookingapi.entity.Reservation;
 import elsys.bookingapi.service.ReservationService;
 import jakarta.validation.constraints.Future;
@@ -27,14 +28,23 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getBookedRooms(propertyUuid, checkInDate, checkOutDate));
     }
 
-    @PostMapping("/")
+    @PostMapping()
     public ResponseEntity<Void> requestReservation(@RequestBody ClientReservationRequest reservationRequest) {
         reservationService.requestReservation(reservationRequest);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<Reservation>> getReservations() {
-        return ResponseEntity.ok(reservationService.getReservations());
+    @GetMapping("/pending")
+    public ResponseEntity<List<Reservation>> getPendingReservationsByProperty(@RequestParam("propertyUuid") @UUID String propertyUuid) {
+        return ResponseEntity.ok(reservationService.getPendingReservationsByProperty(propertyUuid));
+    }
+
+    @PatchMapping("/{reservationUuid}/status")
+    public ResponseEntity<Void> updateReservationStatus(
+        @PathVariable @UUID String reservationUuid,
+        @RequestBody UpdateReservationStatus updateData
+    ) {
+        reservationService.updateReservationStatus(reservationUuid, updateData);
+        return ResponseEntity.ok().build();
     }
 }
